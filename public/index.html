@@ -1,36 +1,43 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <title>Slack</title>
-    <link rel="stylesheet" href="./css/style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
   </head>
   <body>
-    <header class="header"><h1>roomName</h1></header>
-    <section class="container">
-      <div class="container__left">
-        <nav>
-          <div class="nav nav__users-list">
-            <!-- <li>user1</li>
-            <li>user2</li> -->
-          </div>
-        </nav>
+    <!-- <a href="/index.html">test</a> -->
+
+    <form action="/chat.html">
+      <div class="form-control">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          name="username"
+          id="username"
+          placeholder="Enter username..."
+          required
+        />
       </div>
-      <div class="container__right">
-        <div class="messages" id="messages"></div>
-        <form action="" id="chatForm" class="messages--form">
-          <input id="msg" autocomplete="off" /><button>Send</button>
-        </form>
-        <div class="typing-info"><span></span></div>
+      <div class="form-control">
+        <label for="room">Room</label>
+        <input
+          type="text"
+          name="room"
+          id="room"
+          placeholder="Enter room..."
+          required
+        />
+        <!-- <select name="room" id="room">
+          <option value="JavaScript">JavaScript</option>
+          <option value="Python">Python</option>
+          <option value="PHP">PHP</option>
+          <option value="C#">C#</option>
+          <option value="Ruby">Ruby</option>
+          <option value="Java">Java</option>
+        </select> -->
       </div>
-    </section>
-    <script src="/socket.io/socket.io.js"></script>
-    <!-- <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script> -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.4/qs.min.js"
-      integrity="sha512-BHtomM5XDcUy7tDNcrcX1Eh0RogdWiMdXl3wJcKB3PFekXb3l5aDzymaTher61u6vEZySnoC/SAj2Y/p918Y3w=="
-      crossorigin="anonymous"
-    ></script>
-    <script src="./js/main.js"></script>
+      <button type="submit" class="btn">Join Chat</button>
+    </form>
   </body>
 </html>

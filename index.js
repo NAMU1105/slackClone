@@ -8,6 +8,10 @@ const port = 3002 || process.env.PORT;
 // io는 socket.io 패키지를 import한 변수
 const io = require("socket.io")(http);
 
+// use ejs to render html files
+// app.set("view engine", "ejs");
+// app.engine("html", require("ejs").renderFile);
+
 const {
   userJoin,
   getCurrentUser,
@@ -15,11 +19,15 @@ const {
   getRoomUsers,
 } = require("./utils/users");
 
+const formatMessage = require("./utils/messages");
+
 const admin = "Admin";
 const welcomMessage = "Welcome";
 
 // app.use(express.static(__dirname));
 // app.use(express.static("/public"));
+// view 경로 설정
+app.set("views", __dirname + "/views");
 app.use(express.static(__dirname + "/public"));
 
 // joined user list
@@ -43,14 +51,15 @@ app.use(express.static(__dirname + "/public"));
 ////////////////////////////////////////////////
 // 8. 기존에 보냈던 메시지들 보여주기
 // 9. 타이핑 효과 더 스무스하게 보이게 만들기(중요도 하)
-//
+// 10. 메시지 보낸 시간 표시
 
 app.get("/", (req, res) => {
   // res.send("<h1>Hello world!!!  </h1>");
   res.sendFile(__dirname + "/index.html");
 });
-app.get("/test", (req, res) => {
-  res.sendFile(__dirname + "/public/test.html");
+app.get("/chat", (req, res) => {
+  res.sendFile(__dirname + "/public/chat.html");
+  // res.render("chat.html");
 });
 
 // This will emit the event to all connected sockets
@@ -83,6 +92,7 @@ io.on("connection", (socket) => {
     // console.log(`users: ${users}`);
     userJoin(userID, username, room);
     let roomUsers = getRoomUsers(room);
+    const chatMsg = formatMessage(admin, welcomMessage);
 
     socket.emit("message", welcomMessage, admin, room, roomUsers);
 
@@ -132,7 +142,17 @@ io.on("connection", (socket) => {
   // *********************************************
   // private chatting
   // *********************************************
-  socket.on("privateChatting", ({ username, room }) => {});
+  socket.on("privateChatting", ({ room, userno }) => {
+    console.log("room: ", room);
+    console.log("userno: ", userno);
+
+    socket.join(userno);
+
+    socket.on("chatMessage", (msg) => {
+      io.to(userno).emit("message", msg, userno);
+      console.log("message: " + msg);
+    });
+  });
 
   // If you want to send a message to everyone except for a certain emitting socket,
   // we have the broadcast flag for emitting from that socket:

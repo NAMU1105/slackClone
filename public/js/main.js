@@ -1,5 +1,6 @@
 // TODO:
 // 1. 메시지 보내면 맨 하단으로 스크롤 내리기
+// 2. 메시지 포맷팅 하기(클래스 따로 만들기)!~!!!!!
 
 const chatForm = document.querySelector("#chatForm");
 const socket = io();
@@ -20,6 +21,7 @@ const { username, room } = Qs.parse(location.search, {
 
 // Join chatroom
 socket.emit("joinRoom", { username, room });
+socket.emit("privateChatting", "test");
 
 // Get room and users
 socket.on("roomUsers", ({ room, users }) => {
@@ -68,7 +70,9 @@ const addMessageToDom = (msg, testUserName) => {
   const message = document.createElement("span");
   time.innerText = msg;
   userName.innerText = testUserName;
-  message.innerText = `15:35`;
+  //   const sentTime = moment().format("h:mm a");
+  //   message.innerText = `15:35`;
+  //   message.innerText = `${sentTime}`;
   div.appendChild(userName);
 
   div.appendChild(time);
@@ -165,7 +169,12 @@ chatForm.addEventListener("keyup", (e) => {
 // **************************************************
 userList.addEventListener("click", (e) => {
   // private chatting starts
+
+  const userID = e.target.id;
+
   if (e.target.classList.contains("user")) {
     // console.log(e.target.id);
+    location.href = "/private.html?room=" + room + "&userno=" + userID;
+    // location.href = "/private.html?no=" + userID;
   }
 });
