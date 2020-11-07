@@ -91,44 +91,48 @@ io.on("connection", (socket) => {
     // users.push(joinedUser);
     // console.log(`users: ${users}`);
     userJoin(userID, username, room);
+    console.log(`userID: ${userID}`);
     let roomUsers = getRoomUsers(room);
-    const chatMsg = formatMessage(admin, welcomMessage);
+    let adminMsg = formatMessage(admin, welcomMessage);
 
-    socket.emit("message", welcomMessage, admin, room, roomUsers);
+    // send welcome message
+    socket.emit("message", adminMsg);
+
+    // send joined user list
+    io.to(room).emit("showUserList", roomUsers);
 
     // Broadcast when a user connects
-    // socket.broadcast.emit("chat message", "A user entered", admin);
-    // socket.broadcast.to(room).emit("chat message", "A user entered", admin);
-    socket.broadcast
-      .to(room)
-      .emit(
-        "message",
-        `${username} has joined the chat`,
-        admin,
-        room,
-        roomUsers
-      );
+    adminMsg = formatMessage(admin, `${username} has joined the chat`);
+
+    socket.broadcast.to(room).emit("message", adminMsg);
 
     socket.on("disconnect", () => {
-      // console.log("user disconnected");
-      userLeave(userID);
-      roomUsers = getRoomUsers(room);
+      adminMsg = formatMessage(admin, `${username} has left the chat`);
+      console.log("user disconnected");
+      console.log(`userID: ${userID}`);
 
-      io.to(room).emit(
-        "message",
-        `${username} has left the chat`,
-        admin,
-        room,
-        roomUsers
-      );
+      userLeave(userID);
+
+      roomUsers = getRoomUsers(room);
+      // console.log(`roomUsers: ${JSON.stringify(roomUsers)}`);
+
+      // send updated user list
+      // socket.emit("showUserList", roomUsers);
+      // Send users and room info
+      io.to(room).emit("showUserList", roomUsers);
+
+      io.to(room).emit("message", adminMsg);
     });
 
     // Listen for chatMessage
     socket.on("chatMessage", (msg) => {
       // In this case, for the sake of simplicity we’ll send the message to everyone, including the sender.
       // io.emit("chat message", msg);
-      io.to(room).emit("message", msg, username);
-      console.log("message: " + msg);
+
+      const chatMsg = formatMessage(username, msg);
+      // io.to(room).emit("message", msg, username);
+      io.to(room).emit("message", chatMsg);
+      console.log("chatMsg: " + chatMsg);
     });
     socket.on("keyDown", () => {
       socket.broadcast.to(room).emit("typing", `${username}`);
@@ -143,15 +147,16 @@ io.on("connection", (socket) => {
   // private chatting
   // *********************************************
   socket.on("privateChatting", ({ room, userno }) => {
+    console.log("private chatting");
     console.log("room: ", room);
     console.log("userno: ", userno);
 
     socket.join(userno);
 
-    socket.on("chatMessage", (msg) => {
-      io.to(userno).emit("message", msg, userno);
-      console.log("message: " + msg);
-    });
+    // socket.on("chatMessage", (msg) => {
+    //   io.to(userno).emit("message", msg, userno);
+    //   console.log("message: " + msg);
+    // });
   });
 
   // If you want to send a message to everyone except for a certain emitting socket,

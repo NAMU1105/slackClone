@@ -21,13 +21,13 @@ const { username, room } = Qs.parse(location.search, {
 
 // Join chatroom
 socket.emit("joinRoom", { username, room });
-socket.emit("privateChatting", "test");
+// socket.emit("privateChatting", "test");
 
 // Get room and users
-socket.on("roomUsers", ({ room, users }) => {
-  outputRoomName(room);
-  outputUsers(users);
-});
+// socket.on("roomUsers", ({ room, users }) => {
+//   outputRoomName(room);
+//   outputUsers(users);
+// });
 
 // // Add users to DOM
 // const outputUsers = (users) => {
@@ -43,14 +43,17 @@ socket.on("roomUsers", ({ room, users }) => {
 const showJoinedUsersInfo = (usersArray) => {
   const lis = document.querySelectorAll(".user");
   console.log("lis.legnth: ", lis.length);
-  console.log("usersArray.legnth: ", usersArray.length);
+  console.log("lis: ", lis);
+  //   console.log("usersArray.legnth: ", usersArray.length);
 
-  if (usersArray.length !== 0) {
-    //   clear user list
-    for (let i = 0; i < lis.length; i++) {
-      lis[i].remove();
-    }
+  //   if (usersArray.length !== 0) {
+  //   clear user list
+  for (let i = 0; i < lis.length; i++) {
+    console.log("i: ", i);
+
+    lis[i].remove();
   }
+  //   }
 
   //   add user list to DOM
   usersArray.map((user) => {
@@ -63,16 +66,16 @@ const showJoinedUsersInfo = (usersArray) => {
   });
 };
 
-const addMessageToDom = (msg, testUserName) => {
+const addMessageToDom = (msg) => {
   const div = document.createElement("div");
   const userName = document.createElement("span");
   const time = document.createElement("span");
   const message = document.createElement("span");
-  time.innerText = msg;
-  userName.innerText = testUserName;
+  time.innerText = msg.text;
+  userName.innerText = msg.username;
   //   const sentTime = moment().format("h:mm a");
   //   message.innerText = `15:35`;
-  //   message.innerText = `${sentTime}`;
+  message.innerText = msg.time;
   div.appendChild(userName);
 
   div.appendChild(time);
@@ -84,29 +87,29 @@ const showRoomInfo = (roomName) => {
   headerRoomName.innerText = roomName;
 };
 
-socket.on("message", function (
-  msg,
-  testUserName,
-  roomName = "",
-  joinedUsersArray = []
-) {
-  console.log(`msg: ${msg}`);
-  console.log(`roomName: ${roomName}`);
-  console.log(`testUserName: ${testUserName}`);
-  console.log(`joinedUsersArray: ${JSON.stringify(joinedUsersArray)}`);
-  console.log(`joinedUsersArray.length: ${joinedUsersArray.length}`);
-  //   Output message to DOM
-  // $("#messages").append($("<li>").text(msg));
-  addMessageToDom(msg, testUserName);
+// **************************************************
+// show joined user list
+// **************************************************
+socket.on("showUserList", (userList) => {
+  console.log("showUserList");
 
-  //   방정보 보여주기
-  //   이건 한 번만 보여주면 되지 않나?
-  //   여기에 있으면 매번 메시지 이벤트가 호출 될 때마다 시행되니까 안 좋은 듯
-  showRoomInfo(room);
-  if (joinedUsersArray.length != 0) {
-    // 대화에 참가하는 유저 보여주기
-    showJoinedUsersInfo(joinedUsersArray);
-  }
+  //   Output user list to DOM
+  showJoinedUsersInfo(userList);
+});
+
+// **************************************************
+// show room name(info)
+// **************************************************
+showRoomInfo(room);
+
+// **************************************************
+// show messages
+// **************************************************
+socket.on("message", function (msg) {
+  console.log(`msg: ${msg}`);
+
+  //   Output message to DOM
+  addMessageToDom(msg);
 });
 
 chatForm.addEventListener("submit", (e) => {
@@ -115,7 +118,6 @@ chatForm.addEventListener("submit", (e) => {
 
   // Get message text
   let msg = e.target.elements.msg.value;
-
   msg = msg.trim();
 
   if (!msg) {
